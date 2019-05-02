@@ -1,10 +1,23 @@
-module.exports = (req, res, next) => {
-  if (req.session && req.session.user) {
-    // disponibiliza user para views
-    res.locals.user = req.session.user
+const jwt = require('jsonwebtoken')
+const authConfig = require('../../config/auth')
+const { promisify } = require('util')
 
-    return next()
+module.exports = async (req, res, next) => {
+  const authHeader = req.headers.authorization
+
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Token not provided' })
   }
 
-  return res.redirect('/')
+  const [, token] = authHeader.split(' ')
+
+  try {
+    const decoded = await promisify(jwt.verify)(token, authConfig.secret)
+
+    req.userId = decoded.id
+
+    return next()
+  } catch (err) {
+    return res.status(401).json({ error: token })
+  }
 }

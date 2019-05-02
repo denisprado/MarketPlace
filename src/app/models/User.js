@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const auth = require('../../config/auth')
+const authConfig = require('../../config/auth')
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -39,8 +39,8 @@ UserSchema.methods = {
 
 UserSchema.statics = {
   generateToken ({ id }) {
-    return jwt.sign({ id }, auth.secret, {
-      expiresIn: auth.ttl
+    return jwt.sign({ id }, authConfig.secret, {
+      expiresIn: authConfig.ttl
     })
   }
 }
